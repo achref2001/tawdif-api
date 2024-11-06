@@ -1,13 +1,14 @@
 // src/app.ts
 
 import express from 'express';
-import dotenv from 'dotenv';
+import dotenv, { config } from 'dotenv';
 import { connectDatabase } from './config/database';
 import candidateRoutes from './features/identity/routes/CandidateRoutes';
 import employerRoutes from './features/identity/routes/EmployerRoutes';
 import jobRoutes from './features/jobs/routes/JobRoutes';
 import submissionRoutes from './features/Submission/Routes/SubmissionRoutes'
-dotenv.config();
+config({ path: '.env.production' });
+// dotenv.config();
 const app = express();
 
 app.use(express.json());

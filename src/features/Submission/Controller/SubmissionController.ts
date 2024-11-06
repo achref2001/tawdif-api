@@ -1,15 +1,41 @@
 import { Request, Response } from 'express';
 import { SubmissionService } from '../Service/SubmissionService';
 import { ISubmission } from '../Model/Submission';
+import { minioClient, bucketName } from '../../../config/minioClient';
+import multer from 'multer';
+import { Readable } from 'stream';
+
+// Configure multer to handle file uploads in memory
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 export class SubmissionController {
     private submissionService = new SubmissionService();
 
-    async createSubmission(req: Request, res: Response) {
-        const submissionData: ISubmission = req.body;
-        const submission = await this.submissionService.createSubmission(submissionData);
-        res.status(201).json(submission);
-    }
+    
+        async createSubmission(req: Request, res: Response) {
+            const { jobId, candidateId } = req.body;
+            const file = req.file;
+    
+            if (!file) {
+                return res.status(400).json({ message: 'CV file is required' });
+            }
+    
+            try {
+                const submission = await this.submissionService.createSubmission({
+                    jobId,
+                    candidateId,
+                    cvFile: file,
+                });
+                res.status(201).json(submission);
+            } catch (error) {
+                res.status(500).json({ error: 'Error saving submission' });
+            }
+        }
+    
+    // Other methods remain unchanged
+
+
 
     async getAllSubmissions(req: Request, res: Response) {
         const submissions = await this.submissionService.getAllSubmissions();

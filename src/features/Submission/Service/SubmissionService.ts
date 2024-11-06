@@ -1,13 +1,35 @@
 // src/features/Submission/services/SubmissionService.ts
 
 import { SubmissionRepository } from '../Repository/SubmissionRepository';
-import { ISubmission } from '../Model/Submission';
+import { minioClient, bucketName } from '../../../config/minioClient';
+import { Types } from 'mongoose'; // Import Types from mongoose
 
 export class SubmissionService {
     private submissionRepository = new SubmissionRepository();
 
-    async createSubmission(submissionData: ISubmission) {
-        return this.submissionRepository.create(submissionData);
+    async createSubmission(submissionData: { jobId: string; candidateId: string; cvFile: Express.Multer.File }) {
+        const { jobId, candidateId, cvFile } = submissionData;
+
+        // Convert jobId and candidateId to ObjectId using 'new'
+        const jobObjectId = new Types.ObjectId(jobId);
+        const candidateObjectId = new Types.ObjectId(candidateId);
+
+        // Define the file name for MinIO
+        const fileName = `cv-${Date.now()}-${cvFile.originalname}`;
+
+        // Upload file to MinIO
+        await minioClient.putObject(bucketName, fileName, cvFile.buffer);
+
+        // Construct the MinIO file URL
+        const fileUrl = `-------------/${bucketName}/${fileName}`;
+
+        // Save submission details in the database
+        return this.submissionRepository.create({
+            jobId: jobObjectId, // Ensure this is an ObjectId
+            candidateId: candidateObjectId, // Ensure this is an ObjectId
+            resume: fileUrl, // Save the URL in the resume field
+            status: 'pending', // Default status
+        });
     }
 
     async getAllSubmissions() {

@@ -1,12 +1,12 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { SubmissionController } from '../Controller/SubmissionController';
 import { asyncHandler } from '../../../utils/asyncHandler'; // Update this path accordingly
-
+import multer from 'multer';
 const router = Router();
 const submissionController = new SubmissionController();
-
+const upload = multer({ storage: multer.memoryStorage() });
 // Route to create a new submission
-router.post('/', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+router.post('/',upload.single('cv'), asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     return submissionController.createSubmission(req, res);
 }));
 

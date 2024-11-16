@@ -1,23 +1,53 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
 
-export interface IJob extends Document {
+// Add IJob interface
+export interface IJob {
     title: string;
     description: string;
     location: string;
     requirements: string[];
     salary: number;
-    employerId: Types.ObjectId; // Reference to the employer
-    deleted?: boolean; // New field for soft delete
+    employerId: Schema.Types.ObjectId;
+    deleted?: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
-const JobSchema = new Schema<IJob>({
-    title: { type: String, required: true },
-    description: { type: String, required: true },
-    location: { type: String, required: true },
-    requirements: { type: [String], required: true },
-    salary: { type: Number, required: true },
-    employerId: { type: Schema.Types.ObjectId, ref: 'Employer', required: true },
-    deleted: { type: Boolean, default: false } // Set default to false
+const jobsSchema = new Schema({
+    title: {
+        type: String,
+        required: true,
+    },
+    description: {
+        type: String,
+        required: true,
+    },
+    location: {
+        type: String,
+        required: true,
+    },
+    requirements: {
+        type: [String],
+        required: true,
+    },
+    salary: {
+        type: Number,
+        required: true,
+    },
+    employerId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Employer',
+        required: true,
+    },
+    deleted: {
+        type: Boolean,
+        default: false,
+    },
+}, {
+    timestamps: true,
 });
 
-export const Job = model<IJob>('Job', JobSchema);
+// Check if the model already exists before defining it
+const Job = models.Job || model('Job', jobsSchema);
+
+export default Job;

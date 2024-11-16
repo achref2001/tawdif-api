@@ -1,5 +1,5 @@
 import { IJob } from '../model/Job';
-import { Job } from '../model/Job';
+import Job from '../model/Job';
 
 export class JobRepository {
     async create(job: IJob) {
@@ -11,7 +11,7 @@ export class JobRepository {
     }
 
     async findAll() {
-        return await Job.find({ deleted: false }); // Filter out deleted jobs
+        return await Job.find({ deleted: false }); // Filter out deleted Job
     }
 
     async update(id: string, jobData: Partial<IJob>) {

@@ -20,8 +20,8 @@ export class JobController {
     };
 
     getAll = async (req: Request, res: Response) => {
-        const jobs = await this.jobService.getAllJobs();
-        res.status(200).json(jobs);
+        const Job = await this.jobService.getAllJobs();
+        res.status(200).json(Job);
     };
 
     getById = async (req: Request, res: Response) => {

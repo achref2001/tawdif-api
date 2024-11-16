@@ -47,4 +47,20 @@ export class SubmissionService {
     async deleteSubmission(id: string) {
         return this.submissionRepository.softDelete(id);
     }
+    async uploadCv(cvFile: Express.Multer.File): Promise<string> {
+        if (!cvFile) {
+            throw new Error('No CV file provided');
+        }
+
+        // Define the file name for MinIO
+        const fileName = `cv-${Date.now()}-${cvFile.originalname}`;
+
+        // Upload file to MinIO
+        await minioClient.putObject(bucketName, fileName, cvFile.buffer);
+
+        // Construct the MinIO file URL
+        const fileUrl = `const fileUrl = -------------/${bucketName}/${fileName}`;
+
+        return fileUrl;
+    }
 }

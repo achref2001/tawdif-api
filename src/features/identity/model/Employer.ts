@@ -1,4 +1,4 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, Document, Types } from 'mongoose';
 
 export interface IEmployer extends Document {
     username: string;
@@ -6,6 +6,7 @@ export interface IEmployer extends Document {
     password: string;
     companyName: string;
     companyDetails: string;
+    Job: Types.ObjectId[];
 }
 
 const EmployerSchema = new Schema<IEmployer>({
@@ -14,6 +15,10 @@ const EmployerSchema = new Schema<IEmployer>({
     password: { type: String, required: true },
     companyName: { type: String, required: true },
     companyDetails: { type: String, required: true },
+    Job: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Job'
+    }]
 });
 
 export const Employer = model<IEmployer>('Employer', EmployerSchema);

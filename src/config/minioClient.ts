@@ -1,14 +1,22 @@
 import { Client } from 'minio';
+import * as dotenv from 'dotenv';
+
+// Load environment variables based on NODE_ENV
+if (process.env.NODE_ENV === 'development') {
+    dotenv.config({ path: '.env.local' });
+} else {
+    dotenv.config({ path: '.env.test' });
+}
 
 export const minioClient = new Client({
-    endPoint: 'localhost',        // Replace with your MinIO server address
-    port: 9000,                   // Replace with your MinIO server port
-    useSSL: false,                // Set to true if your MinIO server uses SSL
-    accessKey: '4AByYwQdLhdQyjaTyLvc',    // Replace with your MinIO Access Key
-    secretKey: 'apfxS7Mqopd8IKhsHY48PFJ2piIAqV2QyPhEyglj',  // Replace with your MinIO Secret Key
+    endPoint: process.env.MINIO_ENDPOINT || 'localhost',
+    port: parseInt(process.env.MINIO_PORT || '9000'),
+    useSSL: process.env.MINIO_USE_SSL === 'true',
+    accessKey: process.env.MINIO_ACCESS_KEY || '',
+    secretKey: process.env.MINIO_SECRET_KEY || '',
 });
 
-export const bucketName = 'tawdif';
+export const bucketName = process.env.MINIO_BUCKET_NAME || 'tawdif';
 
 async function ensureBucketExists(bucketName: string) {
     try {

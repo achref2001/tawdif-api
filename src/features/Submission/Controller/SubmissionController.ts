@@ -69,4 +69,22 @@ export class SubmissionController {
         }
         res.status(204).send();
     }
+    uploadCv = async (req: Request, res: Response) => {
+        try {
+            if (!req.file) {
+                return res.status(400).json({ message: 'No CV file uploaded' });
+            }
+
+            // Assuming you have logic for uploading the file (e.g., saving to a server or cloud storage)
+            const fileUrl = await this.submissionService.uploadCv(req.file);
+
+            res.status(200).json({
+                message: 'CV uploaded successfully',
+                fileUrl,
+            });
+        } catch (error) {
+            console.error('Error uploading CV:', error);
+            res.status(500).json({ message: 'Error uploading CV' });
+        }
+    };
 }

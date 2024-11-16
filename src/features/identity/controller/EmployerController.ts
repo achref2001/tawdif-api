@@ -1,73 +1,102 @@
 import { Request, Response } from 'express';
 import { EmployerService } from '../service/EmployerService';
-import { IEmployer } from '../model/Employer';
+import { asyncHandler } from '../../../utils/asyncHandler';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
-export class EmployerController {
-    private employerService = new EmployerService();
+const employerService = new EmployerService();
+const JWT_SECRET = process.env.JWT_SECRET as string || 'default_jwt_secret';
 
-    async register(req: Request, res: Response) {
-        try {
-            const employerData: IEmployer = req.body;
-            const employer = await this.employerService.register(employerData);
-            res.status(201).json(employer);
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                res.status(400).json({ message: error.message });
-            } else {
-                res.status(400).json({ message: 'An unknown error occurred' });
-            }
-        }
+// Create Employer
+export const createEmployer = asyncHandler(async (req: Request, res: Response) => {
+    const { username, email, password, companyName, companyDetails, ...otherData } = req.body;
+
+    if (!password) {
+        return res.status(400).json({ message: 'Password is required' });
     }
 
-    async getAll(req: Request, res: Response) {
-        try {
-            const employers = await this.employerService.getAllEmployers();
-            res.status(200).json(employers);
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                res.status(400).json({ message: error.message });
-            } else {
-                res.status(400).json({ message: 'An unknown error occurred' });
-            }
-        }
+    const newEmployer = await employerService.register({
+        username,
+        email,
+        password,
+        companyName,
+        companyDetails,
+        ...otherData,
+    });
+
+    res.status(201).json(newEmployer);
+});
+
+// Employer Login
+export const loginEmployer = asyncHandler(async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+    console.log('Login attempt for email:', email);
+    
+    const employer = await employerService.findByEmail(email);
+    console.log('Employer found:', employer ? 'Yes' : 'No');
+    
+    if (!employer) {
+        console.log('No employer found with this email');
+        return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    async getById(req: Request, res: Response) {
-        try {
-            const employer = await this.employerService.getEmployerById(req.params.id);
-            res.status(200).json(employer);
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                res.status(400).json({ message: error.message });
-            } else {
-                res.status(400).json({ message: 'An unknown error occurred' });
-            }
-        }
+    // Temporary debugging - DO NOT USE IN PRODUCTION
+    console.log('Stored hashed password:', employer.password);
+    console.log('Provided password:', password);
+    
+    const isPasswordValid = await bcrypt.compare(password, employer.password);
+    console.log('Password valid:', isPasswordValid);
+    
+    if (!isPasswordValid) {
+        console.log('Password comparison failed');
+        return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    async update(req: Request, res: Response) {
-        try {
-            const employer = await this.employerService.updateEmployer(req.params.id, req.body);
-            res.status(200).json(employer);
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                res.status(400).json({ message: error.message });
-            } else {
-                res.status(400).json({ message: 'An unknown error occurred' });
-            }
-        }
+    // Generate JWT token
+    const token = jwt.sign({ id: employer._id, role: 'employer' }, JWT_SECRET, {
+        expiresIn: '10h',
+    });
+
+    console.log('Login successful, token generated');
+    res.json({ token });
+});
+export const getJobsWithEmployers = asyncHandler(async (req: Request, res: Response) => {
+    const jobsWithEmployers = await employerService.getJobsWithEmployers();
+    res.json(jobsWithEmployers);
+});
+
+// Get all Employers
+export const getAllEmployers = asyncHandler(async (req: Request, res: Response) => {
+    const employers = await employerService.getAllEmployers();
+    res.json(employers);
+});
+
+// Get Employer by ID
+export const getEmployerById = asyncHandler(async (req: Request, res: Response) => {
+    const employer = await employerService.getEmployerById(req.params.id);
+
+    if (!employer) {
+        return res.status(404).json({ message: 'Employer not found' });
     }
 
-    async delete(req: Request, res: Response) {
-        try {
-            await this.employerService.deleteEmployer(req.params.id);
-            res.status(204).send();
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                res.status(400).json({ message: error.message });
-            } else {
-                res.status(400).json({ message: 'An unknown error occurred' });
-            }
-        }
+    res.json(employer);
+});
+
+
+// Update Employer
+export const updateEmployer = asyncHandler(async (req: Request, res: Response) => {
+    const updatedEmployer = await employerService.updateEmployer(req.params.id, req.body);
+    if (!updatedEmployer) {
+        return res.status(404).json({ message: 'Employer not found' });
     }
-}
+    res.json(updatedEmployer);
+});
+
+// Delete Employer
+export const deleteEmployer = asyncHandler(async (req: Request, res: Response) => {
+    const deletedEmployer = await employerService.deleteEmployer(req.params.id);
+    if (!deletedEmployer) {
+        return res.status(404).json({ message: 'Employer not found' });
+    }
+    res.json({ message: 'Employer deleted successfully' });
+});

@@ -1,12 +1,13 @@
 {
-    "compilerOptions": {
-      "target": "es6",
-      "module": "commonjs",
-      "rootDir": "src",
-      "outDir": "dist",
-      "strict": true,
-      "esModuleInterop": true
-    },
-    "exclude": ["node_modules", "dist"]
-  }
-  
+  "compilerOptions": {
+    "target": "ES2021",               // Set target to ES2021 for AggregateError support
+    "module": "commonjs",
+    "rootDir": "src",
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "lib": ["ES2021", "DOM"],         // Include ES2021 to support AggregateError and other modern features
+    "skipLibCheck": true              // Skip checking of type definitions in node_modules
+  },
+  "exclude": ["node_modules", "dist"]
+}

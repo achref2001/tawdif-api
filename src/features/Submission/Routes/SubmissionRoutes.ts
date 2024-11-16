@@ -9,7 +9,9 @@ const upload = multer({ storage: multer.memoryStorage() });
 router.post('/',upload.single('cv'), asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     return submissionController.createSubmission(req, res);
 }));
-
+router.post('/upload-cv', upload.single('cv'), asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    return submissionController.uploadCv(req, res);
+}));
 // Route to get all submissions
 router.get('/', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     return submissionController.getAllSubmissions(req, res);

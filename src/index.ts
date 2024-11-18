@@ -19,7 +19,7 @@ app.use(express.json());
 // Connect to MongoDB
 connectDatabase();
 app.use(cors({
-    origin: 'http://localhost:3000', // Allow your frontend domain
+    origin: '*', // Allow your frontend domain
     methods: ['GET', 'POST'], // Allow methods (adjust if needed)
     allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers (adjust as necessary)
 }));

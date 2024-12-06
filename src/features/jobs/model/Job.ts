@@ -6,6 +6,7 @@ export interface IJob {
     description: string;
     location: string;
     requirements: string[];
+    jobType: string;
     salary: number;
     employerId: Schema.Types.ObjectId;
     deleted?: boolean;
@@ -23,6 +24,10 @@ const jobsSchema = new Schema({
         required: true,
     },
     location: {
+        type: String,
+        required: true,
+    },
+    jobType: {
         type: String,
         required: true,
     },

@@ -87,4 +87,19 @@ export class SubmissionController {
             res.status(500).json({ message: 'Error uploading CV' });
         }
     };
+
+    async getSubmissionsByCandidateId(req: Request, res: Response) {
+        const { candidateId } = req.params;
+    
+        try {
+            const submissions = await this.submissionService.getSubmissionsByCandidateId(candidateId);
+            if (!submissions || submissions.length === 0) {
+                return res.status(404).json({ message: 'No submissions found for the given candidate ID' });
+            }
+            res.status(200).json(submissions);
+        } catch (error) {
+            console.error('Error fetching submissions by candidate ID:', error);
+            res.status(500).json({ message: 'Internal Server Error' });
+        }
+    }
 }

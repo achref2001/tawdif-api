@@ -31,5 +31,8 @@ router.patch('/:id/status', asyncHandler(async (req: Request, res: Response, nex
 router.delete('/:id', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     return submissionController.deleteSubmission(req, res);
 }));
+router.get('/candidate/:candidateId', asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    return submissionController.getSubmissionsByCandidateId(req, res);
+}));
 
 export default router;

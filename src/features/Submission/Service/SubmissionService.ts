@@ -63,4 +63,7 @@ export class SubmissionService {
 
         return fileUrl;
     }
+    async getSubmissionsByCandidateId(candidateId: string) {
+        return this.submissionRepository.getSubmissionsByCandidateId(candidateId);
+    }
 }

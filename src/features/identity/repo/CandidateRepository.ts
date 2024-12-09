@@ -24,8 +24,15 @@ export class CandidateRepository {
             const salt = await bcrypt.genSalt(10);
             candidateData.password = await bcrypt.hash(candidateData.password, salt);
         }
-        return Candidate.findByIdAndUpdate(id, candidateData, { new: true });
+    
+        // Filter out undefined values
+        const filteredData = Object.fromEntries(
+            Object.entries(candidateData).filter(([_, value]) => value !== undefined)
+        );
+    
+        return Candidate.findByIdAndUpdate(id, filteredData, { new: true });
     }
+    
 
     async delete(id: string): Promise<ICandidate | null> {
         return Candidate.findByIdAndDelete(id);
